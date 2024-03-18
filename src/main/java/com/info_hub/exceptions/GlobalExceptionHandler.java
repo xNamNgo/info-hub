@@ -1,12 +1,14 @@
 package com.info_hub.exceptions;
 
-import com.info_hub.responses.ErrorResponse;
+import com.info_hub.dtos.responses.ErrorResponse;
 import jakarta.mail.MessagingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.Date;
@@ -14,16 +16,21 @@ import java.util.Date;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(NotFoundExcept.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(NotFoundExcept ex, WebRequest webRequest) {
-        ErrorResponse errorResponse = new ErrorResponse(new Date(), ex.getMessage(), webRequest.getDescription(false));
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest webRequest) {
         ErrorResponse errorResponse = new ErrorResponse(new Date(), ex.getMessage(), webRequest.getDescription(false));
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Throw when enum not match with server.
+     * Like client request "APPROVE" but the enum of server is "APPROVED"
+     * @return 400
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleEnumException(HttpMessageNotReadableException ex, WebRequest webRequest) {
+        ErrorResponse errorResponse = new ErrorResponse(new Date(), ex.getMessage(), webRequest.getDescription(false));
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -77,5 +84,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMediaTypeException(MediaTypeException ex, WebRequest webRequest) {
         ErrorResponse errorResponse = new ErrorResponse(new Date(), ex.getMessage(), webRequest.getDescription(false));
         return new ResponseEntity<>(errorResponse, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+    }
+
+    @ExceptionHandler(HttpClientErrorException.Unauthorized.class)
+    public ResponseEntity<ErrorResponse> handleMediaTypeException(HttpClientErrorException.Unauthorized ex, WebRequest webRequest) {
+        ErrorResponse errorResponse = new ErrorResponse(new Date(), ex.getMessage(), webRequest.getDescription(false));
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 }

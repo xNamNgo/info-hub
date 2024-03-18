@@ -5,8 +5,8 @@ import com.info_hub.dtos.category.CategoryDTO;
 import com.info_hub.exceptions.BadRequestException;
 import com.info_hub.models.Category;
 import com.info_hub.repositories.CategoryRepository;
-import com.info_hub.responses.ListResponse;
-import com.info_hub.responses.category.CategoryResponse;
+import com.info_hub.dtos.responses.SimpleResponse;
+import com.info_hub.dtos.responses.category.CategoryResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -28,15 +28,15 @@ public class CategoryService extends BaseService<Category> {
     }
 
 
-    public ListResponse<CategoryResponse> getAllCategories(Map<String, String> params) {
-        ListResponse<Category> entityResponse = this.getAll(params);
+    public SimpleResponse<CategoryResponse> getAllCategories(Map<String, String> params) {
+        SimpleResponse<Category> entityResponse = this.getAllOrSearchByKeyword(params);
 
         // convert entity data to dto data
         List<CategoryResponse> data = entityResponse.getData().stream()
                 .map(entity -> modelMapper.map(entity, CategoryResponse.class))
                 .toList();
 
-        return ListResponse.<CategoryResponse>builder()
+        return SimpleResponse.<CategoryResponse>builder()
                 .data(data)
                 .page(entityResponse.getPage())
                 .limit(entityResponse.getLimit())

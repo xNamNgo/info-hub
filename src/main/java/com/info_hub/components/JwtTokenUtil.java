@@ -77,7 +77,7 @@ public class JwtTokenUtil {
                     .parseClaimsJws(token) // token hết hạn nó sẽ chết ở đây.
                     .getBody();
         } catch (ExpiredJwtException expiredJwtException) {
-            throw new TokenException(HttpStatus.BAD_REQUEST, "Expired JWT token");
+            throw new TokenException("Expired JWT token");
         }
     }
 
@@ -100,26 +100,18 @@ public class JwtTokenUtil {
 
     /**
      * Validate token
-     * @param token
-     * @param userDetails
-     * @return
+     *
+     * @param token       The JWT token to be validated
+     * @param userDetails The user's details to be used for validation
+     * @return A boolean value indicating whether the token is valid or not
      */
     public boolean validateToken(String token, UserDetails userDetails) {
-        try {
-            String username = extractUsername(token);
-            Token existingToken = tokenRepository.findByAccessToken(token);
-            if (existingToken == null || existingToken.isRevoked() || !userDetails.isEnabled()) {
-                return false;
-            }
-            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-        } catch (UnsupportedJwtException unsupportedJwtException) {
-            throw new TokenException(HttpStatus.BAD_REQUEST, "Unsupported JWT token");
-        } catch (IllegalArgumentException illegalArgumentException) {
-            throw new TokenException(HttpStatus.BAD_REQUEST, "Jwt claims string is null or empty");
-        } catch (MalformedJwtException malformedJwtException) {
-            throw new TokenException(HttpStatus.BAD_REQUEST, "Invalid JWT Token");
+        String username = extractUsername(token);
+        Token existingToken = tokenRepository.findByAccessToken(token);
+        if (existingToken == null || existingToken.isRevoked() || !userDetails.isEnabled() || isTokenExpired(token)) {
+            return false;
         }
-
+        return (username.equals(userDetails.getUsername()));
     }
 
     // generate reset password token when forgot password

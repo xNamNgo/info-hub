@@ -3,10 +3,11 @@ package com.info_hub.services;
 import com.info_hub.dtos.ResponseMessage;
 import com.info_hub.dtos.tag.TagDTO;
 import com.info_hub.exceptions.BadRequestException;
+import com.info_hub.models.Article;
 import com.info_hub.models.Tag;
 import com.info_hub.repositories.TagRepository;
-import com.info_hub.responses.ListResponse;
-import com.info_hub.responses.tag.TagResponse;
+import com.info_hub.dtos.responses.SimpleResponse;
+import com.info_hub.dtos.responses.tag.TagResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -26,15 +27,15 @@ public class TagService extends BaseService<Tag> {
         this.tagRepository = tagRepository;
     }
 
-    public ListResponse<TagResponse> getAllTags(Map<String, String> params) {
-        ListResponse<Tag> entityResponse = this.getAll(params);
+    public SimpleResponse<TagResponse> getAllTags(Map<String, String> params) {
+        SimpleResponse<Tag> entityResponse = this.getAllOrSearchByKeyword(params);
 
         // convert entity data to dto data
         List<TagResponse> data = entityResponse.getData().stream()
                 .map(entity -> modelMapper.map(entity, TagResponse.class))
                 .toList();
 
-        return ListResponse.<TagResponse>builder()
+        return SimpleResponse.<TagResponse>builder()
                 .data(data)
                 .page(entityResponse.getPage())
                 .limit(entityResponse.getLimit())
@@ -48,7 +49,7 @@ public class TagService extends BaseService<Tag> {
         if (tag.isPresent()) {
             return modelMapper.map(tag, TagResponse.class);
         } else {
-            throw new BadRequestException("Category not found with id: " + id);
+            throw new BadRequestException("Tag not found with id: " + id);
         }
     }
 
@@ -73,11 +74,11 @@ public class TagService extends BaseService<Tag> {
         boolean isCodeUnique = tagRepository.existsByCode(code);
 
         if (isCodeUnique) {
-            throw new BadRequestException("The code of category is exist!");
+            throw new BadRequestException("The code of Tag is exist!");
         }
 
         if (isNameUnique) {
-            throw new BadRequestException("The name of category is exist!");
+            throw new BadRequestException("The name of Tag is exist!");
         }
     }
 
@@ -125,8 +126,11 @@ public class TagService extends BaseService<Tag> {
         Tag existTag = tagRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Tag not found with id: " + id));
 
-        tagRepository.delete(existTag);
+        for (Article article : existTag.getArticles()) {
+            existTag.removeArticle(article);
+        }
 
+        tagRepository.delete(existTag);
         return ResponseMessage.success();
     }
 

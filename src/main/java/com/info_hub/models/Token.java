@@ -17,6 +17,7 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 500)
     private String accessToken;
     private String refreshToken;
     private String tokenType;

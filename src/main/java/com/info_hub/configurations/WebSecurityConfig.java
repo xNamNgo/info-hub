@@ -44,6 +44,7 @@ public class WebSecurityConfig {
                     request
                             .requestMatchers(HttpMethod.GET, String.format("%s/**", apiPrefix)).permitAll()
                             .requestMatchers("/api/auth/**").permitAll()
+                            .requestMatchers(HttpMethod.GET,"/api/media/**").permitAll()
                             .anyRequest().authenticated();
 
                 })

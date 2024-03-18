@@ -1,5 +1,6 @@
 package com.info_hub.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -10,7 +11,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 @EntityListeners(AuditingEntityListener.class) //  @CreatedDate
 @Getter
@@ -46,7 +50,16 @@ public class User implements UserDetails {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    private boolean isEnable;
+    private boolean isEnabled;
+
+    @ManyToOne(cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    @JoinColumn(name = "avatar_id")
+    private Image image;
+
+    // use for revoke token when change password
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    List<Token> tokens = new ArrayList<>();
 
     // get roles
     @Override
@@ -78,6 +91,30 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return this.isEnable;
+        return this.isEnabled;
+    }
+
+    public void setEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
+    }
+
+    public void revokeTokens() {
+        List<Token> tokens = this.getTokens();
+        tokens.forEach(token -> token.setRevoked(true));
+    }
+
+
+    // for compare at Article: return this.users.contains(loggedInUser);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

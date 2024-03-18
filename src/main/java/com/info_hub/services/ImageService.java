@@ -3,7 +3,6 @@ package com.info_hub.services;
 import com.info_hub.components.ImageHandler;
 import com.info_hub.models.Image;
 import com.info_hub.repositories.ImageRepository;
-import com.info_hub.responses.article.ImgResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,19 +15,15 @@ public class ImageService {
     private final ImageHandler imageHandler;
     private final ImageRepository imageRepository;
 
-    public ImgResponse createImageArticle(MultipartFile imageFile) {
-        String imagePath = null;
+    // Tạm thời xử lí 1 folder chứa all ảnh
+    public Image createImage(MultipartFile imageFile) {
+        Image image = null;
         try {
-            imagePath = imageHandler.saveArticleImage(imageFile);
+            image = imageHandler.saveImage(imageFile);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to save article image.", e);
+            throw new RuntimeException("Failed to save image.", e);
         }
 
-        Image image = new Image(imagePath);
-        imageRepository.save(image);
-        return new ImgResponse(image.getUrl());
+        return imageRepository.save(image);
     }
-
-    // avatar
-
 }

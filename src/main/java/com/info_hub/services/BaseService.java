@@ -1,11 +1,10 @@
 package com.info_hub.services;
 
-import com.info_hub.constant.EnvironmentConstant;
-import com.info_hub.exceptions.BadRequestException;
+import com.info_hub.components.GetPageableUtil;
 import com.info_hub.repositories.BaseRepository;
-import com.info_hub.responses.ListResponse;
+import com.info_hub.dtos.responses.SimpleResponse;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Map;
 import java.util.Optional;
@@ -25,42 +24,21 @@ public class BaseService<Entity> {
      *  *                   If not provided, all Entity are retrieved.
      * @return A ListResponse containing a list of Entity objects.
      */
-    public ListResponse<Entity> getAll(Map<String, String> params) {
-        // page number
-        int page = EnvironmentConstant.PAGE_DEFAULT_INDEX;
-        if (params.get("page") != null) {
-            // default 1 instead 0
-            page = Integer.parseInt(params.get("page")) - 1;
-        }
+    public SimpleResponse<Entity> getAllOrSearchByKeyword(Map<String, String> params) {
 
-        // limit page
-        int limit = EnvironmentConstant.LIMIT_DEFAULT;
-        if (params.get("limit") != null) {
-            limit = Integer.parseInt(params.get("limit"));
-        }
-
-        // validate
-        if (page < 0) {
-            throw new BadRequestException("Page number must be greater than 0");
-        }
-        if (limit <= 0) {
-            throw new BadRequestException("Value must be positive");
-        }
-
-        Page<Entity> pages;
         String q = params.get("q");
-        if (q != null) {
-            pages = baseRepository.search(q, PageRequest.of(page, limit));
-        } else {
-            pages = baseRepository.findAll(PageRequest.of(page, limit));
-        }
+        q = q != null ? q : "";
 
-        ListResponse<Entity> response = new ListResponse<>();
-        response.data = pages.getContent();
-        response.page = page + 1;
-        response.limit = limit;
-        response.totalPage = pages.getTotalPages();
-        response.totalItems = (int) pages.getTotalElements();
+        // search by keyword: tag, category repository.
+        Pageable pageable = GetPageableUtil.getPageable(params);
+        Page<Entity> results = baseRepository.search(q, pageable);
+
+        SimpleResponse<Entity> response = new SimpleResponse<>();
+        response.data = results.getContent();
+        response.page = pageable.getPageNumber() + 1;
+        response.limit = pageable.getPageSize();
+        response.totalPage = results.getTotalPages();
+        response.totalItems = (int) results.getTotalElements();
         return response;
     }
 

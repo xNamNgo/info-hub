@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "article_monitors")
+@Table(name = "article_monitor")
 public class ArticleMonitorsEntity extends BaseEntity{
     @Column(columnDefinition = "integer default 0")
     private int userId;

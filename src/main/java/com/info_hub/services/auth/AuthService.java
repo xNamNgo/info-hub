@@ -7,14 +7,16 @@ import com.info_hub.dtos.auth.UserRegisterDTO;
 import com.info_hub.exceptions.BadRequestException;
 import com.info_hub.exceptions.ResetTokenException;
 import com.info_hub.exceptions.TokenException;
+import com.info_hub.models.Image;
 import com.info_hub.models.Role;
 import com.info_hub.models.Token;
 import com.info_hub.models.User;
+import com.info_hub.repositories.ImageRepository;
 import com.info_hub.repositories.RoleRepository;
 import com.info_hub.repositories.TokenRepository;
-import com.info_hub.repositories.UserRepository;
-import com.info_hub.responses.auth.LoginResponse;
-import com.info_hub.responses.MessageResponse;
+import com.info_hub.repositories.user.UserRepository;
+import com.info_hub.dtos.responses.auth.LoginResponse;
+import com.info_hub.dtos.responses.MessageResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +35,16 @@ public class AuthService implements LogoutHandler {
     @Value("${spring.mail.exp-reset-token}")
     private int expResetToken;
 
+    @Value("${api.url-image}")
+    private String ipImage;
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final JwtTokenUtil jwtTokenUtil;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final TokenRepository tokenRepository;
+    private final ImageRepository imageRepository;
 
     public MessageResponse register(UserRegisterDTO registerDTO) {
         if (userRepository.existsByEmail(registerDTO.getEmail())) {
@@ -52,7 +58,7 @@ public class AuthService implements LogoutHandler {
                 .role(role)
                 .password(passwordEncoder.encode(password))
                 .fullName(registerDTO.getFullName())
-                .isEnable(true)
+                .isEnabled(true)
                 .build();
         userRepository.save(newUser);
 
@@ -83,7 +89,8 @@ public class AuthService implements LogoutHandler {
         TokenDTO token = jwtTokenUtil.generateToken(existingUser);
         tokenService.addToken(token, existingUser);
 
-        return LoginResponse.builder()
+        LoginResponse response = LoginResponse.builder()
+                .id(existingUser.getId())
                 .email(email)
                 .fullName(existingUser.getFullName())
                 .role(existingUser.getRole().getCode())
@@ -91,6 +98,17 @@ public class AuthService implements LogoutHandler {
                 .refreshToken(token.getRefreshToken())
                 .message("Login successfully!")
                 .build();
+
+        Image avatar = imageRepository.findByUsers_Id(existingUser.getId());
+        // user doesn't have avatar
+        if(avatar == null) {
+            // default avatar
+            response.setImage(ipImage + "default-avatar.png");
+        } else {
+            response.setImage(avatar.getUrl());
+        }
+
+        return response;
     }
 
     public LoginResponse refreshToken(String refreshToken) {

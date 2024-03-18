@@ -79,6 +79,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 // The SecurityContextHolder is where Spring Security stores the details of who is authenticated.
                 // https://docs.spring.io/spring-security/reference/servlet/authentication/architecture.html#servlet-authentication-securitycontextholder
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            } else {
+                throw new TokenException("Invalid access token");
             }
         }
         // ( next step sang WebSecurityConfig class) - enable bypass
@@ -90,7 +92,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private boolean isBypassToken(@NonNull HttpServletRequest request) {
         final List<Pair<String, String>> byPassTokens = Arrays.asList(
                 Pair.of(String.format("%s/", apiPrefix), "GET"),
-                Pair.of("/api/auth/", "POST")
+                Pair.of("/api/auth/", "POST"),
+                Pair.of("/api/media/","GET")
         );
         for (Pair<String, String> bypassToken : byPassTokens) {
             if (request.getServletPath().contains(bypassToken.getLeft()) &&
