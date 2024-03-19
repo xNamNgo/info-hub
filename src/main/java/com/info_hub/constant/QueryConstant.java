@@ -9,4 +9,7 @@ public class QueryConstant {
     public static final String SELECT_FROM_USER = "SELECT u.* FROM user AS u" +
             " JOIN role on u.role_id = role.id\n" +
             " WHERE role.code NOT IN ('ROLE_ADMIN')";
+    public static final String SELECT_FROM_COMMENT = "SELECT c.* FROM comment AS c" +
+            " JOIN user ON user.id = c.user_id" +
+            " JOIN article ON article.id = c.article_id";
 }

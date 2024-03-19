@@ -1,6 +1,6 @@
 package com.info_hub.models;
 
-import com.info_hub.enums.ArticleStatus;
+import com.info_hub.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,13 +29,19 @@ public class Article extends BaseEntity {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    private ArticleStatus status;
+    private Status status;
 
     private String rejectedMessage;
 
+    // reviewer
     @ManyToOne
     @JoinColumn(name = "reviewer_id")
     private User reviewer;
+
+    // author
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User author;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

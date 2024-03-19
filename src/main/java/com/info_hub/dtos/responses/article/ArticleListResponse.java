@@ -1,9 +1,6 @@
 package com.info_hub.dtos.responses.article;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 
@@ -11,12 +8,20 @@ import java.util.Date;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ArticleListResponse {
     private Integer id;
     private String title;
-    private Date updatedDate;;
+    private Date updatedDate;
     private String categoryName;
     private String authorFullname;
     private String reviewerFullname;
     private String status;
+
+    // load to client
+    private String description;
+    private String thumbnailUrl;
+    private Integer categoryId;
+
+
 }

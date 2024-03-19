@@ -6,12 +6,15 @@ import com.info_hub.dtos.auth.ProfileDTO;
 import com.info_hub.dtos.auth.ResetPasswordDTO;
 import com.info_hub.dtos.responses.SimpleResponse;
 import com.info_hub.dtos.responses.article.SavedArticleResponse;
+import com.info_hub.dtos.responses.user.AllMyCommentResponse;
 import com.info_hub.dtos.responses.user.ProfileResponse;
 import com.info_hub.models.Article;
+import com.info_hub.models.Comment;
 import com.info_hub.models.Image;
 import com.info_hub.models.User;
 import com.info_hub.repositories.TokenRepository;
 import com.info_hub.repositories.article.ArticleRepository;
+import com.info_hub.repositories.comment.CommentRepository;
 import com.info_hub.repositories.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -24,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +40,7 @@ public class ProfileService {
     private final PasswordEncoder passwordEncoder;
     private final ArticleRepository articleRepository;
     private final ModelMapper modelMapper;
+    private final CommentRepository commentRepository;
 
 
     public ProfileResponse getMyProfile() {
@@ -118,6 +123,27 @@ public class ProfileService {
                 .totalPage(savedArticle.getTotalPages())
                 .totalItems((int) savedArticle.getTotalElements())
                 .build();
+    }
+
+    public List<AllMyCommentResponse> getAllMyComment() {
+        User currentUser = getLoggedInUser();
+        List<Comment> myComments = commentRepository.findByUser_Id(currentUser.getId());
+
+        // long code
+//        List<AllMyCommentResponse> result = new ArrayList<>();
+//        for(Comment comment : myComments) {
+//            AllMyCommentResponse item = AllMyCommentResponse.builder()
+//                    .createdAt(comment.getCreatedDate())
+//                    .text(comment.getText())
+//                    .articleId(comment.getArticle().getId())
+//                    .build();
+//            result.add(item);
+//        }
+
+        // short code
+        return myComments.stream()
+                .map(comment -> modelMapper.map(comment, AllMyCommentResponse.class))
+                .collect(Collectors.toList());
     }
 
 

@@ -5,6 +5,7 @@ import com.info_hub.dtos.auth.ProfileDTO;
 import com.info_hub.dtos.auth.ResetPasswordDTO;
 import com.info_hub.dtos.responses.SimpleResponse;
 import com.info_hub.dtos.responses.article.SavedArticleResponse;
+import com.info_hub.dtos.responses.user.AllMyCommentResponse;
 import com.info_hub.dtos.responses.user.ProfileResponse;
 import com.info_hub.models.Image;
 import com.info_hub.services.ImageService;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -53,5 +55,10 @@ public class ProfileController {
     public ResponseEntity<SimpleResponse<SavedArticleResponse>> getListSavedArticle(
             @RequestParam(required = false) Map<String, String> params) {
         return ResponseEntity.ok(profileService.getArticleSaved(params));
+    }
+
+    @GetMapping("/my-comments")
+    public ResponseEntity<List<AllMyCommentResponse>> getListSavedArticle(){
+        return ResponseEntity.ok(profileService.getAllMyComment());
     }
 }

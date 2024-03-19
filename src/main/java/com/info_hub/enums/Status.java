@@ -1,5 +1,5 @@
 package com.info_hub.enums;
 
-public enum ArticleStatus {
+public enum Status {
     PENDING,APPROVED,REJECTED
 }

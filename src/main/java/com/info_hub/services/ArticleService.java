@@ -2,7 +2,7 @@ package com.info_hub.services;
 
 import com.info_hub.components.GetPageableUtil;
 import com.info_hub.dtos.ResponseMessage;
-import com.info_hub.dtos.article.ApproveArticleDTO;
+import com.info_hub.dtos.ReviewDTO;
 import com.info_hub.dtos.article.ArticleDTO;
 import com.info_hub.dtos.responses.SimpleResponse;
 import com.info_hub.dtos.responses.article.ArticleDetailResponse;
@@ -10,7 +10,7 @@ import com.info_hub.dtos.responses.article.ArticleListResponse;
 import com.info_hub.dtos.responses.article.UserResponse;
 import com.info_hub.dtos.responses.category.CategoryNodeResponse;
 import com.info_hub.dtos.responses.tag.TagResponse;
-import com.info_hub.enums.ArticleStatus;
+import com.info_hub.enums.Status;
 import com.info_hub.exceptions.BadRequestException;
 import com.info_hub.models.*;
 import com.info_hub.repositories.CategoryRepository;
@@ -25,7 +25,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -68,14 +67,12 @@ public class ArticleService {
         SimpleResponse<Article> entitiesResponse = articleRepository.findByCondition(params, pageable);
 
         //  convert List Entity to List DTO
-        List<ArticleListResponse> results = new ArrayList<>();
-        for (Article entity : entitiesResponse.getData()) {
-            ArticleListResponse item = convertEntityToDTO(entity);
-            results.add(item);
-        }
+        List<ArticleListResponse> result = entitiesResponse.getData().stream()
+                .map(comment -> modelMapper.map(comment, ArticleListResponse.class))
+                .toList();
 
         return SimpleResponse.<ArticleListResponse>builder()
-                .data(results)
+                .data(result)
                 .page(entitiesResponse.getPage())
                 .limit(entitiesResponse.getLimit())
                 .totalItems(entitiesResponse.getTotalItems())
@@ -94,8 +91,12 @@ public class ArticleService {
                 .title(articleDTO.getTitle())
                 .description(articleDTO.getDescription())
                 .content(articleDTO.getContent())
-                .status(ArticleStatus.PENDING)
+                .status(Status.PENDING)
                 .build();
+
+        // who did created article?
+        User author = ProfileService.getLoggedInUser();
+        newArticle.setAuthor(author);
 
         saveThumbnailToArticle(newArticle, articleDTO.getThumbnailId());
         saveTagsToArticle(newArticle, articleDTO.getTagIds());
@@ -112,7 +113,7 @@ public class ArticleService {
         existingArticle.setTitle(articleDTO.getTitle());
         existingArticle.setDescription(articleDTO.getDescription());
         existingArticle.setContent(articleDTO.getContent());
-        existingArticle.setStatus(ArticleStatus.PENDING);
+        existingArticle.setStatus(Status.PENDING);
         saveThumbnailToArticle(existingArticle, articleDTO.getThumbnailId());
         saveTagsToArticle(existingArticle, articleDTO.getTagIds());
         saveCategoryToArticle(existingArticle, articleDTO.getCategoryId());
@@ -162,7 +163,7 @@ public class ArticleService {
      * the article will be displayed in the list of articles.
      * Otherwise, if the status is "REJECTED", the article will be displayed in the list of rejected articles.
      */
-    public ResponseMessage reviewArticle(Integer articleId, ApproveArticleDTO status) {
+    public ResponseMessage reviewArticle(Integer articleId, ReviewDTO status) {
         Article existingArticle = findExistingArticleById(articleId);
 
         // how to know who is appprove ?
@@ -173,12 +174,12 @@ public class ArticleService {
 
         switch (status.getStatus()) {
             case APPROVED:
-                existingArticle.setStatus(ArticleStatus.APPROVED);
+                existingArticle.setStatus(Status.APPROVED);
                 break;
             case REJECTED:
                 // reason when rejected
                 existingArticle.setRejectedMessage(status.getMessage());
-                existingArticle.setStatus(ArticleStatus.REJECTED);
+                existingArticle.setStatus(Status.REJECTED);
                 break;
         }
 
@@ -213,26 +214,6 @@ public class ArticleService {
     private String getNameByUserId(Integer personId) {
         User user = userRepository.findById(personId).get();
         return user.getFullName();
-    }
-
-    private ArticleListResponse convertEntityToDTO(Article entity) {
-        ArticleListResponse result = ArticleListResponse.builder()
-                .id(entity.getId())
-                .title(entity.getTitle())
-                .categoryName(entity.getCategory().getName())
-                .authorFullname(getNameByUserId(entity.getCreatedBy()))
-                .updatedDate(entity.getCreatedDate())
-                .status(entity.getStatus().toString())
-                .build();
-
-        // reviewerFullname(entity.getReviewer().getFullName())
-        User reviewer = entity.getReviewer();
-        if (reviewer != null) {
-            result.setReviewerFullname(reviewer.getFullName());
-        } else {
-            result.setReviewerFullname("-");
-        }
-        return result;
     }
 
     public List<UserResponse> getListReviewers() {

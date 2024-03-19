@@ -1,7 +1,7 @@
 package com.info_hub.controllers;
 
 import com.info_hub.dtos.ResponseMessage;
-import com.info_hub.dtos.article.ApproveArticleDTO;
+import com.info_hub.dtos.ReviewDTO;
 import com.info_hub.dtos.article.ArticleDTO;
 import com.info_hub.dtos.responses.SimpleResponse;
 import com.info_hub.dtos.responses.article.ArticleDetailResponse;
@@ -65,7 +65,7 @@ public class ArticleController {
     @PatchMapping("/review/{id}")
     public ResponseEntity<ResponseMessage> reviewrArticle(
             @PathVariable("id") Integer articleId,
-            @RequestBody ApproveArticleDTO status) {
+            @RequestBody ReviewDTO status) {
         ResponseMessage response = articleService.reviewArticle(articleId, status);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

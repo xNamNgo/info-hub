@@ -1,17 +1,32 @@
 package com.info_hub.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import com.info_hub.enums.Status;
+import jakarta.persistence.*;
+import lombok.*;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 public class Comment extends BaseEntity{
-    @Column(columnDefinition = "integer default 0")
-    private int userId;
-    @Column(columnDefinition = "integer default 0")
-    private int parentId;
-    @Column(columnDefinition = "integer default 0")
-    private int articleId;
-
     @Column(nullable = false)
     private String text;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name="reviewer_id")
+    private User reviewer;
+
+    @ManyToOne
+    @JoinColumn(name = "article_id")
+    private Article article;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
 }
