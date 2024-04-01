@@ -1,6 +1,7 @@
 package com.info_hub.dtos.responses.comment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.info_hub.enums.Status;
 import lombok.*;
 
 @Setter
@@ -14,4 +15,5 @@ public class DetailCommentResponse {
     private String userEmail;
     private String articleTitle;
     private String text;
+    private Status status;
 }

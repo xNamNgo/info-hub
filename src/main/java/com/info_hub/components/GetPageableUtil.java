@@ -4,16 +4,21 @@ import com.info_hub.constant.EnvironmentConstant;
 import com.info_hub.exceptions.BadRequestException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.Map;
 
 public class GetPageableUtil {
 
-    // Define a method to handle common pagination logic for consistency:
+    /**
+     * Define a method to handle common pagination logic for consistency:
+     *
+     * @param params
+     * @return
+     */
     public static Pageable getPageable(Map<String, String> params) {
         int page = EnvironmentConstant.PAGE_DEFAULT_INDEX;
         int limit = EnvironmentConstant.LIMIT_DEFAULT;
-
         try {
             if (params.get("page") != null) {
                 page = Integer.parseInt(params.get("page")) - 1; // Adjust for 1-based indexing
@@ -33,6 +38,15 @@ public class GetPageableUtil {
             throw new BadRequestException("Limit must be greater than 0");
         }
 
-        return PageRequest.of(page, limit);
+        // sorting
+        Sort sort = Sort.by("createdDate").descending();
+        String sortDir = params.get("sort");
+        if (sortDir != null) {
+            if (sortDir.equals("asc")) {
+                sort = sort.ascending();
+            }
+        }
+
+        return PageRequest.of(page, limit, sort);
     }
 }

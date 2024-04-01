@@ -7,6 +7,7 @@ import com.info_hub.dtos.responses.SimpleResponse;
 import com.info_hub.dtos.responses.article.SavedArticleResponse;
 import com.info_hub.dtos.responses.user.AllMyCommentResponse;
 import com.info_hub.dtos.responses.user.ProfileResponse;
+import com.info_hub.dtos.responses.user.UploadAvatarResponse;
 import com.info_hub.models.Image;
 import com.info_hub.services.ImageService;
 import com.info_hub.services.auth.ProfileService;
@@ -34,7 +35,7 @@ public class ProfileController {
     }
 
     @PatchMapping("/upload-avatar")
-    public ResponseEntity<ResponseMessage> uploadAvatar(@RequestParam("file") MultipartFile img) {
+    public ResponseEntity<UploadAvatarResponse> uploadAvatar(@RequestParam("file") MultipartFile img) {
         Image image = imageService.createImage(img);
         return ResponseEntity.ok(profileService.uploadAvatar(image));
     }

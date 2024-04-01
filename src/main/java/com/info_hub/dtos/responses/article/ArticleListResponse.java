@@ -12,7 +12,7 @@ import java.util.Date;
 public class ArticleListResponse {
     private Integer id;
     private String title;
-    private Date updatedDate;
+    private Date createdDate;
     private String categoryName;
     private String authorFullname;
     private String reviewerFullname;

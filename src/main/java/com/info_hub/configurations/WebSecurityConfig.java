@@ -2,7 +2,6 @@ package com.info_hub.configurations;
 
 import com.info_hub.components.JwtAuthenticationEntryPoint;
 import com.info_hub.filters.JwtTokenFilter;
-import com.info_hub.services.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

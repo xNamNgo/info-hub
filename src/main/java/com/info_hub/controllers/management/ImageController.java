@@ -1,4 +1,4 @@
-package com.info_hub.controllers;
+package com.info_hub.controllers.management;
 
 import com.info_hub.models.Image;
 import com.info_hub.services.ImageService;
@@ -32,7 +32,6 @@ public class ImageController {
                 return ResponseEntity.ok()
                         .contentType(MediaType.IMAGE_JPEG)
                         .body(new UrlResource(Paths.get("storages/default.jpeg").toUri()));
-                //return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
             return ResponseEntity.notFound().build();

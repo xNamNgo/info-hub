@@ -8,6 +8,7 @@ import com.info_hub.dtos.responses.SimpleResponse;
 import com.info_hub.dtos.responses.article.SavedArticleResponse;
 import com.info_hub.dtos.responses.user.AllMyCommentResponse;
 import com.info_hub.dtos.responses.user.ProfileResponse;
+import com.info_hub.dtos.responses.user.UploadAvatarResponse;
 import com.info_hub.models.Article;
 import com.info_hub.models.Comment;
 import com.info_hub.models.Image;
@@ -58,13 +59,13 @@ public class ProfileService {
                 .build();
     }
 
-    public ResponseMessage uploadAvatar(Image file) {
+    public UploadAvatarResponse uploadAvatar(Image file) {
         User user = getLoggedInUser();
         // Set the image for the existing user, then update.
         user.setImage(file);
         userRepository.save(user);
 
-        return ResponseMessage.success();
+        return new UploadAvatarResponse(user.getImage().getUrl());
     }
 
     public ResponseMessage updateProfile(ProfileDTO params) {

@@ -11,11 +11,4 @@ public class ArticleSearchDTO {
 
     @JsonProperty("f_reviewername")
     private String reviewerFullname;
-
-//    private String
-
-
-
-
-
 }

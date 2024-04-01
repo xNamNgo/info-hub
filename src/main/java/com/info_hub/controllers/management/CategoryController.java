@@ -1,4 +1,4 @@
-package com.info_hub.controllers;
+package com.info_hub.controllers.management;
 
 import com.info_hub.dtos.ResponseMessage;
 import com.info_hub.dtos.category.CategoryDTO;

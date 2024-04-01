@@ -24,10 +24,9 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 
         StringBuilder sql = new StringBuilder(buildQueryFilter(params))
                 .append(" ORDER BY a.created_date DESC")
-                .append(" LIMIT ").append(limit)
-                .append(" OFFSET ").append(pageable.getOffset());
-        // debug sql
-        System.out.println(sql.toString());
+                .append(QueryConstant.LIMIT).append(limit)
+                .append(QueryConstant.OFFSET).append(pageable.getOffset());
+
         // excute query
         Query query = entityManager.createNativeQuery(sql.toString(), Article.class);
         List<Article> articles = query.getResultList();

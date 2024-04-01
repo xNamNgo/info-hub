@@ -19,6 +19,7 @@ import com.info_hub.repositories.TagRepository;
 import com.info_hub.repositories.article.ArticleRepository;
 import com.info_hub.repositories.user.UserRepository;
 import com.info_hub.services.auth.ProfileService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ArticleService {
     private final ArticleRepository articleRepository;
     private final ModelMapper modelMapper;
@@ -37,21 +39,6 @@ public class ArticleService {
     private final TagRepository tagRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
-
-
-    public ArticleService(ArticleRepository articleRepository,
-                          ModelMapper modelMapper,
-                          ImageRepository imageRepository,
-                          TagRepository tagRepository,
-                          CategoryRepository categoryRepository,
-                          UserRepository userRepository) {
-        this.modelMapper = modelMapper;
-        this.articleRepository = articleRepository;
-        this.imageRepository = imageRepository;
-        this.tagRepository = tagRepository;
-        this.categoryRepository = categoryRepository;
-        this.userRepository = userRepository;
-    }
 
     /**
      * Return list Article
@@ -239,7 +226,7 @@ public class ArticleService {
 
         // check if article id exist in user that mean was saved
         // so need to unsave
-        if(!articleToSave.isSavedArticle(loggedInUser)) {
+        if (!articleToSave.isSavedArticle(loggedInUser)) {
             articleToSave.addSavedArticle(loggedInUser);
         } else {
             articleToSave.removeSavedArticle(loggedInUser);

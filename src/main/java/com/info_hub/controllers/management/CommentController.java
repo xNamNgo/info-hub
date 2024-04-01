@@ -1,4 +1,4 @@
-package com.info_hub.controllers;
+package com.info_hub.controllers.management;
 
 import com.info_hub.dtos.ResponseMessage;
 import com.info_hub.dtos.ReviewDTO;
@@ -46,7 +46,7 @@ public class CommentController {
 
     // call this api when user comment in article id
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/request-comment/{articleId}")
+    @PostMapping("/article/{articleId}")
     public ResponseEntity<ResponseMessage> requestComment(
             @PathVariable Integer articleId,
             @RequestBody CommentDTO commentDTO) {

@@ -25,8 +25,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
         StringBuilder sql = new StringBuilder(buildQueryFilter(params))
                 .append(QueryConstant.LIMIT).append(limit)
                 .append(QueryConstant.OFFSET).append(pageable.getOffset());
-        // debug sql
-        System.out.println(sql.toString());
+
         // excute query
         Query query = entityManager.createNativeQuery(sql.toString(), Comment.class);
         List<Comment> comments = query.getResultList();

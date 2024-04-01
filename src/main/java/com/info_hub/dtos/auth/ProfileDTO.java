@@ -9,5 +9,4 @@ import lombok.*;
 @Builder
 public class ProfileDTO {
     private String fullName;
-//    private String email;
 }

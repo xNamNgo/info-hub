@@ -1,4 +1,4 @@
-package com.info_hub.controllers.auth;
+package com.info_hub.controllers.management;
 
 
 import com.info_hub.dtos.ResponseMessage;

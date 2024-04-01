@@ -1,5 +1,6 @@
 package com.info_hub.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
@@ -21,6 +22,7 @@ public class Tag extends BaseEntity {
     private String code;
 
     @ManyToMany(mappedBy = "tags")
+    @JsonBackReference
     Set<Article> articles;
 
     public void removeArticle(Article article) {
