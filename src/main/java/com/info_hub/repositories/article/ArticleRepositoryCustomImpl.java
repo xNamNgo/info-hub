@@ -32,15 +32,20 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
         List<Article> articles = query.getResultList();
 
         // result
-        int countItems = query.getResultList().size();
+        int totalItems = countTotalItem(params);
         SimpleResponse<Article> result = new SimpleResponse<>();
         result.data = articles;
         result.page = pageSize;
         result.limit = limit;
-        result.totalItems = countItems;
-        result.totalPage = (int) Math.ceil((double) countItems / pageSize);
+        result.totalItems = totalItems;
+        result.totalPage = (int) Math.ceil((double) totalItems / (double) limit);
 
         return result;
+    }
+
+    private int countTotalItem(Map<String, String> params) {
+        Query countRow = entityManager.createNativeQuery(buildQueryFilter(params));
+        return countRow.getResultList().size();
     }
 
 

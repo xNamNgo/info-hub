@@ -23,25 +23,31 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
         int pageSize = pageable.getPageNumber() + 1;
 
         StringBuilder sql = new StringBuilder(buildQueryFilter(params))
+                .append(" ORDER BY c.created_date DESC")
                 .append(QueryConstant.LIMIT).append(limit)
                 .append(QueryConstant.OFFSET).append(pageable.getOffset());
 
         // excute query
         Query query = entityManager.createNativeQuery(sql.toString(), Comment.class);
+
         List<Comment> comments = query.getResultList();
 
         // result
-        int countItems = query.getResultList().size();
+        int totalItems = countTotalItem(params);
         SimpleResponse<Comment> result = new SimpleResponse<>();
         result.data = comments;
         result.page = pageSize;
         result.limit = limit;
-        result.totalItems = countItems;
-        result.totalPage = (int) Math.ceil((double) countItems / pageSize);
+        result.totalItems = totalItems;
+        result.totalPage = (int) Math.ceil((double) totalItems / (double) limit);
 
         return result;
     }
 
+    private int countTotalItem(Map<String, String> params) {
+        Query countRow = entityManager.createNativeQuery(buildQueryFilter(params));
+        return countRow.getResultList().size();
+    }
 
     private String buildQueryFilter(Map<String, String> params) {
         StringBuilder sql = new StringBuilder(QueryConstant.SELECT_FROM_COMMENT);
@@ -53,6 +59,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
         String email = params.get("email");
         String text = params.get("text");
         String status = params.get("status");
+        String dateFrom = params.get("f_date_from"); // 13/08/2002
+        String dateTo = params.get("f_date_to"); // 07/03/2024
+        String reviewerId = params.get("f_reviewer_id");
 
         if (email != null) {
             if (!email.isEmpty()) {
@@ -69,6 +78,24 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
         if (status != null) {
             if (!status.isEmpty()) {
                 sql.append(String.format(" and c.status = '%s'", status));
+            }
+        }
+
+        if (dateFrom != null) {
+            if (!dateFrom.isEmpty()) {
+                sql.append(String.format(" and c.created_date >= '%s'", dateFrom));
+            }
+        }
+
+        if (dateTo != null) {
+            if (!dateTo.isEmpty()) {
+                sql.append(String.format(" and c.created_date <= '%s'", dateTo));
+            }
+        }
+
+        if (reviewerId != null) {
+            if (!reviewerId.isEmpty()) {
+                sql.append(String.format(" and c.reviewer_id = %s", reviewerId));
             }
         }
 

@@ -4,9 +4,11 @@ import com.info_hub.components.GetPageableUtil;
 import com.info_hub.dtos.ResponseMessage;
 import com.info_hub.dtos.ReviewDTO;
 import com.info_hub.dtos.article.ArticleDTO;
+import com.info_hub.dtos.home.ArticleResponse;
 import com.info_hub.dtos.responses.SimpleResponse;
 import com.info_hub.dtos.responses.article.ArticleDetailResponse;
 import com.info_hub.dtos.responses.article.ArticleListResponse;
+import com.info_hub.dtos.responses.article.ArticleSaved;
 import com.info_hub.dtos.responses.article.UserResponse;
 import com.info_hub.dtos.responses.category.CategoryNodeResponse;
 import com.info_hub.dtos.responses.tag.TagResponse;
@@ -21,6 +23,7 @@ import com.info_hub.repositories.user.UserRepository;
 import com.info_hub.services.auth.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -220,20 +223,71 @@ public class ArticleService {
     /**
      * User save article by click in button "save" in Front end.
      */
-    public ResponseMessage saveArticle(Integer articleId) {
+    public ArticleSaved saveArticle(Integer articleId) {
         User loggedInUser = ProfileService.getLoggedInUser();
         Article articleToSave = findExistingArticleById(articleId);
 
         // check if article id exist in user that mean was saved
         // so need to unsave
+        boolean isSaved = false;
         if (!articleToSave.isSavedArticle(loggedInUser)) {
             articleToSave.addSavedArticle(loggedInUser);
+            isSaved = true;
         } else {
             articleToSave.removeSavedArticle(loggedInUser);
         }
 
         articleRepository.save(articleToSave);
-        return ResponseMessage.success();
+        return new ArticleSaved(isSaved);
     }
+
+    public ArticleSaved checkArticleSave(Integer articleId) {
+        User loggedInUser = ProfileService.getLoggedInUser();
+        boolean isArticleSaved = articleRepository.existsByIdAndUsers_Id(articleId, loggedInUser.getId());
+        return new ArticleSaved(isArticleSaved);
+    }
+
+    /**
+     * Homepage API
+     *
+     * @param params
+     * @return list article by tag code.
+     */
+    public SimpleResponse<ArticleResponse> searchArticleByTagCode(Map<String, String> params) {
+        String tagCode = params.get("code");
+        String categoryCode = params.get("c_code");
+        Pageable pageable = GetPageableUtil.getPageable(params);
+
+        Page<Article> articles = findArticles(tagCode, categoryCode, pageable);
+
+        List<ArticleResponse> result = articles.stream()
+                .map(articleEntity -> modelMapper.map(articleEntity, ArticleResponse.class))
+                .toList();
+
+        return SimpleResponse.<ArticleResponse>builder()
+                .data(result)
+                .page((articles.getNumber() + 1))
+                .limit(articles.getSize())
+                .totalItems((int) articles.getTotalElements())
+                .totalPage(articles.getTotalPages())
+                .build();
+
+    }
+
+    private Page<Article> findArticles(String tagCode, String categoryCode, Pageable pageable) {
+        if (tagCode != null) {
+            return articleRepository.findByTags_Code(tagCode, pageable);
+        }
+
+        Category category = categoryRepository.findByCode(categoryCode);
+        if (category == null) {
+            throw new BadRequestException("Category not found.");
+        }
+
+        return category.isHasParent() ?
+                articleRepository.findByCategory_Code(categoryCode, pageable) :
+                articleRepository.findByCategory_ParentCategory_Id(category.getId(), pageable);
+    }
+
 
 }

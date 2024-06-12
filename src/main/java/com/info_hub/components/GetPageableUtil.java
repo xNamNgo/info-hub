@@ -39,7 +39,7 @@ public class GetPageableUtil {
         }
 
         // sorting
-        Sort sort = Sort.by("createdDate").descending();
+        Sort sort = Sort.by("createdDate","id").descending();
         String sortDir = params.get("sort");
         if (sortDir != null) {
             if (sortDir.equals("asc")) {

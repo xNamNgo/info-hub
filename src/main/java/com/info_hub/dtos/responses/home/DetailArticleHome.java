@@ -18,6 +18,8 @@ public class DetailArticleHome {
     @JsonProperty("articleId")
     private Integer id;
     private String authorFullName;
+    private String authorEmail;
+    private String authorImageUrl;
     private Date createdDate;
     private String title;
     private String description;

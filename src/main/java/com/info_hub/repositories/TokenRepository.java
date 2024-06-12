@@ -14,7 +14,7 @@ public interface TokenRepository extends JpaRepository<Token, Integer> {
     List<Token> findByUser(User user);
     Optional<Token> findByRefreshToken(String refreshToken);
 
-    @Query(value = "delete from tokens where user_id = ?1", nativeQuery = true)
+    @Query(value = "delete from token where user_id = ?1", nativeQuery = true)
     @Modifying
     void deleteByUserId(Integer id);
 

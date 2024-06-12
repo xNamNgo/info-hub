@@ -11,5 +11,17 @@ public interface ArticleRepository extends ArticleRepositoryCustom, JpaRepositor
 
     Article findByIdAndStatus(Integer id, Status status);
 
+    boolean existsByIdAndUsers_Id(Integer articleId, Integer userId);
+
+    Page<Article> findByTags_Code(String code, Pageable pageable);
+
+    Page<Article> findByCategory_Code(String code, Pageable pageable);
+
+    Page<Article>  findByCategory_ParentCategory_Id(Integer id, Pageable pageable );
+
+    long countByStatus(Status status);
+
+
+
 
 }

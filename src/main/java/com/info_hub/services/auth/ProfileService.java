@@ -9,6 +9,7 @@ import com.info_hub.dtos.responses.article.SavedArticleResponse;
 import com.info_hub.dtos.responses.user.AllMyCommentResponse;
 import com.info_hub.dtos.responses.user.ProfileResponse;
 import com.info_hub.dtos.responses.user.UploadAvatarResponse;
+import com.info_hub.enums.Status;
 import com.info_hub.models.Article;
 import com.info_hub.models.Comment;
 import com.info_hub.models.Image;
@@ -126,25 +127,24 @@ public class ProfileService {
                 .build();
     }
 
-    public List<AllMyCommentResponse> getAllMyComment() {
+    public SimpleResponse<AllMyCommentResponse> getAllMyComment(Map<String, String> params) {
         User currentUser = getLoggedInUser();
-        List<Comment> myComments = commentRepository.findByUser_Id(currentUser.getId());
+        Pageable pageable = GetPageableUtil.getPageable(params);
+        Page<Comment> myComments = commentRepository
+                .findByUser_IdAndStatus(currentUser.getId(), Status.APPROVED, pageable);
 
-        // long code
-//        List<AllMyCommentResponse> result = new ArrayList<>();
-//        for(Comment comment : myComments) {
-//            AllMyCommentResponse item = AllMyCommentResponse.builder()
-//                    .createdAt(comment.getCreatedDate())
-//                    .text(comment.getText())
-//                    .articleId(comment.getArticle().getId())
-//                    .build();
-//            result.add(item);
-//        }
 
-        // short code
-        return myComments.stream()
+        List<AllMyCommentResponse> data = myComments.stream()
                 .map(comment -> modelMapper.map(comment, AllMyCommentResponse.class))
                 .collect(Collectors.toList());
+
+        return SimpleResponse.<AllMyCommentResponse>builder()
+                .data(data)
+                .page(pageable.getPageNumber() + 1)
+                .limit(pageable.getPageSize())
+                .totalPage(myComments.getTotalPages())
+                .totalItems((int) myComments.getTotalElements())
+                .build();
     }
 
 

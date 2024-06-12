@@ -28,4 +28,8 @@ public class Category extends BaseEntity {
     @OneToMany(mappedBy = "category", orphanRemoval = true)
     @JsonBackReference
     List<Article> articles = new ArrayList<>();
+
+    public boolean isHasParent() {
+        return this.parentCategory != null;
+    }
 }

@@ -6,6 +6,7 @@ import com.info_hub.dtos.article.ArticleDTO;
 import com.info_hub.dtos.responses.SimpleResponse;
 import com.info_hub.dtos.responses.article.ArticleDetailResponse;
 import com.info_hub.dtos.responses.article.ArticleListResponse;
+import com.info_hub.dtos.responses.article.ArticleSaved;
 import com.info_hub.dtos.responses.article.UserResponse;
 import com.info_hub.services.ArticleService;
 import jakarta.validation.Valid;
@@ -97,8 +98,8 @@ public class ArticleController {
      */
     @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping("/save/{articleId}")
-    public ResponseEntity<ResponseMessage> saveArticle(@PathVariable Integer articleId) {
-        ResponseMessage response = articleService.saveArticle(articleId);
+    public ResponseEntity<ArticleSaved> saveArticle(@PathVariable Integer articleId) {
+        ArticleSaved response = articleService.saveArticle(articleId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

@@ -59,7 +59,8 @@ public class ProfileController {
     }
 
     @GetMapping("/my-comments")
-    public ResponseEntity<List<AllMyCommentResponse>> getListSavedArticle(){
-        return ResponseEntity.ok(profileService.getAllMyComment());
+    public ResponseEntity<SimpleResponse<AllMyCommentResponse>> getMyComments(
+            @RequestParam(required = false) Map<String, String> params){
+        return ResponseEntity.ok(profileService.getAllMyComment(params));
     }
 }

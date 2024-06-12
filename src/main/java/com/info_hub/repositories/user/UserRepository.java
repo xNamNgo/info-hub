@@ -17,5 +17,6 @@ public interface UserRepository extends UserRepositoryCustom, JpaRepository<User
     @Query("select u from User u where u.role.code in (:roleCodes)")
     List<User> findByRole_Code(String[] roleCodes);
 
+    long countByRole_Code(String code);
 
 }

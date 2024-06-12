@@ -35,7 +35,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private String apiPrefix;
     private final UserDetailsService userDetailsService; //  User entity implements UserDetails
     private final JwtTokenUtil jwtTokenUtil;
-
     // when client send a request
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
